@@ -86,7 +86,14 @@ class CameraView(ctk.CTkCanvas):
         cx = canvas_w // 2
         cy = canvas_h // 2
         
-        # Coordenadas del rectángulo guía
+        # Coordenadas del rectángulo guía (redimensionable proporcionalmente al feed de cámara)
+        if self.scaled_width > 0:
+            self.guide_width = int(self.scaled_width * 0.6)
+            self.guide_height = int(self.guide_width / 1.6)
+        else:
+            self.guide_width = 400
+            self.guide_height = 250
+
         x1 = cx - self.guide_width // 2
         y1 = cy - self.guide_height // 2
         x2 = cx + self.guide_width // 2

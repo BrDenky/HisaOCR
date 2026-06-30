@@ -18,7 +18,7 @@ class SetupWizard(ctk.CTk):
 
         # Configurar ventana
         self.title("Instalación y Configuración - HisaOCR")
-        self.geometry("560x520")
+        self.geometry("560x460")
         self.resizable(False, False)
         
         # Tema estético premium (Oscuro + Neon)
@@ -32,7 +32,7 @@ class SetupWizard(ctk.CTk):
         screen_w = self.winfo_screenwidth()
         screen_h = self.winfo_screenheight()
         pos_x = (screen_w - 560) // 2
-        pos_y = (screen_h - 520) // 2
+        pos_y = (screen_h - 460) // 2
         self.geometry(f"+{pos_x}+{pos_y}")
 
         # Establecer icono de ventana
@@ -144,35 +144,14 @@ class SetupWizard(ctk.CTk):
         self.combo_time.set("07:00")
         self.combo_time.grid(row=0, column=1, padx=(5, 0), sticky="ew")
 
-        # 5. Carpeta Base de Datos
-        self.lbl_db_dir = ctk.CTkLabel(self.form_frame, text="Carpeta de Base de Datos:", font=ctk.CTkFont(weight="bold"))
-        self.lbl_db_dir.grid(row=6, column=0, padx=20, pady=5, sticky="w")
-
-        self.db_dir_frame = ctk.CTkFrame(self.form_frame, fg_color="transparent")
-        self.db_dir_frame.grid(row=6, column=1, padx=20, pady=5, sticky="ew")
-        self.db_dir_frame.grid_columnconfigure(0, weight=1)
-
-        self.entry_db_dir = ctk.CTkEntry(self.db_dir_frame, font=ctk.CTkFont(size=10))
-        self.entry_db_dir.grid(row=0, column=0, padx=(0, 5), sticky="ew")
-
-        self.btn_browse = ctk.CTkButton(
-            self.db_dir_frame,
-            text="Buscar...",
-            width=70,
-            fg_color="#27272a",
-            hover_color="#3f3f46",
-            command=self._browse_folder
-        )
-        self.btn_browse.grid(row=0, column=1, sticky="e")
-
-        # 6. Checkbox de Acceso Directo
+        # 5. Checkbox de Acceso Directo
         self.check_shortcut = ctk.CTkCheckBox(
             self.form_frame,
             text="Crear acceso directo en el Escritorio",
             font=ctk.CTkFont(size=12, weight="bold"),
             text_color="#e4e4e7"
         )
-        self.check_shortcut.grid(row=7, column=0, columnspan=2, padx=20, pady=10, sticky="w")
+        self.check_shortcut.grid(row=6, column=0, columnspan=2, padx=20, pady=10, sticky="w")
         self.check_shortcut.select()
 
         # Configurar pesos del formulario
@@ -206,7 +185,6 @@ class SetupWizard(ctk.CTk):
             default_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             
         self.excel_dir_path = default_dir
-        self.entry_db_dir.insert(0, default_dir)
         
         # Intentar precargar variables si el .env ya existe
         env_path = os.path.join(default_dir, ".env")
@@ -236,19 +214,9 @@ class SetupWizard(ctk.CTk):
                 if "RESET_TIME" in config:
                     self.combo_time.set(config["RESET_TIME"])
                 if "EXCEL_PATH" in config:
-                    db_folder = os.path.dirname(config["EXCEL_PATH"])
-                    self.entry_db_dir.delete(0, tk.END)
-                    self.entry_db_dir.insert(0, db_folder)
-                    self.excel_dir_path = db_folder
+                    self.excel_dir_path = os.path.dirname(config["EXCEL_PATH"])
             except Exception:
                 pass
-
-    def _browse_folder(self):
-        folder = filedialog.askdirectory(initialdir=self.excel_dir_path, title="Seleccione carpeta para guardar el Excel")
-        if folder:
-            self.excel_dir_path = os.path.abspath(folder)
-            self.entry_db_dir.delete(0, tk.END)
-            self.entry_db_dir.insert(0, self.excel_dir_path)
 
     def _add_recipient_chip(self):
         email = self.entry_recipients.get().strip()
@@ -333,7 +301,7 @@ class SetupWizard(ctk.CTk):
     def _on_save(self):
         sender = self.entry_sender.get().strip()
         password = self.entry_password.get().strip().replace(" ", "")
-        db_dir = self.entry_db_dir.get().strip()
+        db_dir = self.excel_dir_path
         reset_day = self.combo_day.get()
         reset_time = self.combo_time.get()
 
@@ -343,7 +311,6 @@ class SetupWizard(ctk.CTk):
 
         # Desactivar controles
         self.btn_save.configure(state="disabled")
-        self.btn_browse.configure(state="disabled")
         self.combo_day.configure(state="disabled")
         self.combo_time.configure(state="disabled")
         
@@ -376,7 +343,6 @@ class SetupWizard(ctk.CTk):
     def _handle_smtp_failure(self, sender, password, recipients_str, db_dir, reset_day, reset_time, error_msg):
         self._update_status("Fallo de conexión SMTP.", "red")
         self.btn_save.configure(state="normal")
-        self.btn_browse.configure(state="normal")
         self.combo_day.configure(state="normal")
         self.combo_time.configure(state="normal")
         
@@ -387,7 +353,6 @@ class SetupWizard(ctk.CTk):
         )
         if confirm:
             self.btn_save.configure(state="disabled")
-            self.btn_browse.configure(state="disabled")
             self.combo_day.configure(state="disabled")
             self.combo_time.configure(state="disabled")
             self._update_status("Instalando...", "yellow")
@@ -481,7 +446,6 @@ class SetupWizard(ctk.CTk):
     def _handle_installation_error(self, err):
         self._update_status("Error durante la instalación.", "red")
         self.btn_save.configure(state="normal")
-        self.btn_browse.configure(state="normal")
         self.combo_day.configure(state="normal")
         self.combo_time.configure(state="normal")
         messagebox.showerror("Error de Instalación", f"No se pudo completar la instalación/guardado:\n{str(err)}")

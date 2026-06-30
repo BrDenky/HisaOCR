@@ -4,6 +4,64 @@ os.environ["FLAGS_use_mkldnn"] = "0"
 os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "0"
 os.environ.setdefault('HUB_DATASET_ENDPOINT', 'https://modelscope.cn/api/v1/datasets')
 
+# Aplicar bypass de dependencias de PaddleX/PaddleOCR (necesario en compilación con PyInstaller)
+try:
+    import importlib.metadata
+    _orig_metadata = importlib.metadata.metadata
+    _orig_requires = importlib.metadata.requires
+    _orig_version = importlib.metadata.version
+
+    def is_package_importable(package_name):
+        import_name = package_name.replace("-", "_")
+        if import_name in ("opencv_contrib_python", "opencv_python"):
+            import_name = "cv2"
+        try:
+            __import__(import_name)
+            return True
+        except ImportError:
+            return False
+
+    class DummyMetadata:
+        def get_all(self, name, default=None):
+            return default or []
+
+    def safe_metadata(package_name):
+        try:
+            return _orig_metadata(package_name)
+        except importlib.metadata.PackageNotFoundError:
+            if is_package_importable(package_name):
+                return DummyMetadata()
+            raise importlib.metadata.PackageNotFoundError(package_name)
+
+    def safe_requires(package_name):
+        try:
+            return _orig_requires(package_name) or []
+        except importlib.metadata.PackageNotFoundError:
+            if is_package_importable(package_name):
+                return []
+            raise importlib.metadata.PackageNotFoundError(package_name)
+
+    def safe_version(package_name):
+        try:
+            return _orig_version(package_name)
+        except importlib.metadata.PackageNotFoundError:
+            if is_package_importable(package_name):
+                return "999.0.0"
+            raise importlib.metadata.PackageNotFoundError(package_name)
+
+    importlib.metadata.metadata = safe_metadata
+    importlib.metadata.requires = safe_requires
+    importlib.metadata.version = safe_version
+
+    import paddlex.utils.deps as deps
+    deps.is_dep_available = lambda *args, **kwargs: True
+    deps.is_extra_available = lambda *args, **kwargs: True
+    deps.require_deps = lambda *args, **kwargs: None
+    deps.require_extra = lambda *args, **kwargs: None
+except Exception:
+    pass
+
+
 import cv2
 import re
 import numpy as np

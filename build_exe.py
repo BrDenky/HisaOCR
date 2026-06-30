@@ -54,6 +54,9 @@ def run_build():
         "--add-data=ui_icon.ico;.",
         "--collect-all=paddleocr",
         "--collect-all=paddlex",
+        "--collect-all=paddle",
+        "--collect-all=pyclipper",
+        "--collect-all=shapely",
         "--collect-all=customtkinter",
         "--collect-all=cv2",
         "main.py"

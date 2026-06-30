@@ -171,8 +171,6 @@ class App(ctk.CTk):
     def _initialize_excel_database(self):
         """Inicializa la base de datos predeterminada al iniciar."""
         success, msg = self.excel_handler.ensure_file_exists()
-        current_path = self.excel_handler.get_file_path()
-        self.db_path_label.configure(text=self._truncate_path(current_path))
         if not success:
             self._update_status(f"Error Excel: {msg}", "red")
         else:
@@ -187,12 +185,12 @@ class App(ctk.CTk):
         # ----------------- PANEL IZQUIERDO (CONTROLES) -----------------
         self.left_panel = ctk.CTkFrame(self, fg_color="#18181b", corner_radius=0)
         self.left_panel.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
-        self.left_panel.grid_rowconfigure(8, weight=1) # Empujar historia abajo
+        self.left_panel.grid_rowconfigure(5, weight=1) # Empujar historia abajo
 
         # Título del panel
         self.title_label = ctk.CTkLabel(
             self.left_panel, 
-            text="OCR-ID", 
+            text="HisaOCR- Proinco", 
             font=ctk.CTkFont(family="Helvetica", size=20, weight="bold"),
             text_color="#00f0ff"
         )
@@ -200,73 +198,27 @@ class App(ctk.CTk):
         
         self.subtitle_label = ctk.CTkLabel(
             self.left_panel, 
-            text="Lector de Cédulas de Identidad", 
+            text="Registro de Personas Automatizado", 
             font=ctk.CTkFont(family="Helvetica", size=12),
             text_color="#a1a1aa"
         )
-        self.subtitle_label.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="w")
+        self.subtitle_label.grid(row=1, column=0, padx=20, pady=(0, 5), sticky="w")
         
         # Separador visual
         self.divider = ctk.CTkFrame(self.left_panel, height=2, fg_color="#27272a")
-        self.divider.grid(row=2, column=0, padx=20, pady=(0, 20), sticky="ew")
-
-        # --- SECCIÓN BASE DE DATOS (EXCEL) ---
-        self.db_title = ctk.CTkLabel(
-            self.left_panel, 
-            text="BASE DE DATOS EXCEL", 
-            font=ctk.CTkFont(family="Helvetica", size=11, weight="bold"),
-            text_color="#39ff14"
-        )
-        self.db_title.grid(row=3, column=0, padx=20, pady=(5, 5), sticky="w")
-        
-        self.db_path_label = ctk.CTkLabel(
-            self.left_panel, 
-            text="No seleccionado", 
-            font=ctk.CTkFont(family="Consolas", size=10),
-            text_color="#e4e4e7",
-            anchor="w",
-            justify="left"
-        )
-        self.db_path_label.grid(row=4, column=0, padx=20, pady=(0, 10), sticky="ew")
-        
-        self.db_btn_frame = ctk.CTkFrame(self.left_panel, fg_color="transparent")
-        self.db_btn_frame.grid(row=5, column=0, padx=20, pady=(0, 20), sticky="ew")
-        self.db_btn_frame.grid_columnconfigure(0, weight=1)
-        self.db_btn_frame.grid_columnconfigure(1, weight=1)
-        
-        self.btn_select_db = ctk.CTkButton(
-            self.db_btn_frame, 
-            text="Buscar Excel", 
-            command=self._select_excel_dialog,
-            height=32,
-            font=ctk.CTkFont(size=11, weight="bold"),
-            fg_color="#27272a",
-            hover_color="#3f3f46"
-        )
-        self.btn_select_db.grid(row=0, column=0, padx=(0, 5), sticky="ew")
-        
-        self.btn_new_db = ctk.CTkButton(
-            self.db_btn_frame, 
-            text="Nuevo Excel", 
-            command=self._create_new_excel_dialog,
-            height=32,
-            font=ctk.CTkFont(size=11, weight="bold"),
-            fg_color="#27272a",
-            hover_color="#3f3f46"
-        )
-        self.btn_new_db.grid(row=0, column=1, padx=(5, 0), sticky="ew")
+        self.divider.grid(row=2, column=0, padx=20, pady=(0, 5), sticky="ew")
 
         # --- SECCIÓN CONFIGURACIÓN CÁMARA ---
         self.cam_title = ctk.CTkLabel(
             self.left_panel, 
-            text="CONFIGURACIÓN DE CÁMARA", 
+            text="Seleccionar Cámara", 
             font=ctk.CTkFont(family="Helvetica", size=11, weight="bold"),
             text_color="#00f0ff"
         )
-        self.cam_title.grid(row=6, column=0, padx=20, pady=(5, 5), sticky="w")
+        self.cam_title.grid(row=3, column=0, padx=20, pady=(5, 5), sticky="w")
         
         self.cam_controls_frame = ctk.CTkFrame(self.left_panel, fg_color="transparent")
-        self.cam_controls_frame.grid(row=7, column=0, padx=20, pady=(0, 25), sticky="ew")
+        self.cam_controls_frame.grid(row=4, column=0, padx=20, pady=(0, 25), sticky="ew")
         self.cam_controls_frame.grid_columnconfigure(0, weight=3)
         self.cam_controls_frame.grid_columnconfigure(1, weight=2)
         
@@ -293,7 +245,7 @@ class App(ctk.CTk):
 
         # --- SECCIÓN HISTORIAL ---
         self.history_frame = ctk.CTkFrame(self.left_panel, fg_color="#09090b", corner_radius=8)
-        self.history_frame.grid(row=8, column=0, padx=20, pady=(10, 10), sticky="nsew")
+        self.history_frame.grid(row=5, column=0, padx=20, pady=(0, 10), sticky="nsew")
         self.history_frame.grid_rowconfigure(1, weight=1)
         self.history_frame.grid_columnconfigure(0, weight=1)
         
@@ -320,7 +272,7 @@ class App(ctk.CTk):
 
         # --- PIE DE PÁGINA (VERSIÓN Y ACTUALIZACIONES) ---
         self.footer_frame = ctk.CTkFrame(self.left_panel, fg_color="transparent")
-        self.footer_frame.grid(row=9, column=0, padx=20, pady=(5, 15), sticky="ew")
+        self.footer_frame.grid(row=6, column=0, padx=20, pady=(5, 15), sticky="ew")
         self.footer_frame.grid_columnconfigure(0, weight=1)
         self.footer_frame.grid_columnconfigure(1, weight=0)
         
@@ -387,54 +339,6 @@ class App(ctk.CTk):
         
         # Vincular tecla Enter (Return) a la ventana modal
         self.bind("<Return>", lambda event: self._trigger_ocr_scan())
-
-    # --- ACCIONES Y GESTIÓN DE ARCHIVOS ---
-    
-    def _truncate_path(self, path, max_len=35):
-        """Trunca la ruta de un archivo para que quepa en la UI."""
-        if len(path) <= max_len:
-            return path
-        parts = path.split(os.sep)
-        if len(parts) > 2:
-            return f"...{os.sep}{os.path.join(parts[-2], parts[-1])}"
-        return f"...{path[-max_len:]}"
-
-    def _select_excel_dialog(self):
-        """Abre un diálogo para seleccionar un Excel existente."""
-        file_path = filedialog.askopenfilename(
-            title="Seleccionar Base de Datos Excel",
-            filetypes=[("Archivos Excel", "*.xlsx")]
-        )
-        if file_path:
-            self.excel_handler.set_file_path(file_path)
-            success, msg = self.excel_handler.ensure_file_exists()
-            if success:
-                self.db_path_label.configure(text=self._truncate_path(file_path))
-                self._update_status(f"Excel seleccionado: {os.path.basename(file_path)}", "green")
-            else:
-                messagebox.showerror("Error de base de datos", msg)
-                self._update_status("Error al cargar Excel.", "red")
-        else:
-            self._update_status("Selección cancelada. Usando base de datos por defecto.", "yellow")
-
-    def _create_new_excel_dialog(self):
-        """Abre un diálogo para crear un nuevo Excel."""
-        file_path = filedialog.asksaveasfilename(
-            title="Crear Nueva Base de Datos Excel",
-            defaultextension=".xlsx",
-            filetypes=[("Archivos Excel", "*.xlsx")]
-        )
-        if file_path:
-            self.excel_handler.set_file_path(file_path)
-            success, msg = self.excel_handler.ensure_file_exists()
-            if success:
-                self.db_path_label.configure(text=self._truncate_path(file_path))
-                self._update_status(f"Nuevo Excel creado: {os.path.basename(file_path)}", "green")
-            else:
-                messagebox.showerror("Error al crear archivo", msg)
-                self._update_status("Error al crear Excel.", "red")
-        else:
-            self._update_status("Creación cancelada.", "yellow")
 
     # --- CONTROL DE CÁMARA ---
 
@@ -625,8 +529,8 @@ class App(ctk.CTk):
             office = entry_office.get().strip()
             obs = entry_obs.get().strip()
             
-            if not ci or not name:
-                messagebox.showwarning("Campos Requeridos", "La Cédula y los Nombres son campos obligatorios.", parent=modal)
+            if not ci or not name or not office:
+                messagebox.showwarning("Campos Requeridos", "Cédula, Nombres y Oficina son campos obligatorios.", parent=modal)
                 return
                 
             # Validar cédula localmente
@@ -744,8 +648,6 @@ class App(ctk.CTk):
                     save_last_reset_time(target_reset_time)
                     
                     self.after(0, lambda: self._update_status("Reporte semanal enviado. Reset exitoso.", "green"))
-                    current_path = self.excel_handler.get_file_path()
-                    self.after(0, lambda: self.db_path_label.configure(text=self._truncate_path(current_path)))
                 except Exception as e:
                     self.after(0, lambda: self._update_status(f"Error al archivar Excel: {str(e)}", "red"))
             else:
