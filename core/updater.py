@@ -108,12 +108,15 @@ def apply_update_and_restart(new_exe_path):
     # 1. Retardo de 2 segundos para dar tiempo a que la app principal se cierre.
     # 2. Borra el ejecutable antiguo.
     # 3. Mueve y renombra el ejecutable nuevo.
-    # 4. Inicia el ejecutable nuevo.
-    # 5. Se elimina a sí mismo (del "%~f0").
+    # 4. Limpia la variable de entorno _MEIPASS de PyInstaller para evitar que
+    #    el nuevo ejecutable intente cargar recursos de la carpeta temporal vieja.
+    # 5. Inicia el ejecutable nuevo.
+    # 6. Se elimina a sí mismo (del "%~f0").
     bat_content = f"""@echo off
 timeout /t 2 /nobreak > NUL 2>&1 || ping 127.0.0.1 -n 3 > NUL
 del /f /q "{current_exe}"
 move /y "{new_exe}" "{current_exe}"
+set _MEIPASS=
 start "" "{current_exe}"
 del "%~f0"
 """
@@ -127,11 +130,17 @@ del "%~f0"
         with open(bat_path, "w") as f:
             f.write(bat_content)
             
+    # Limpiar _MEIPASS del entorno del proceso subprocess para estar doblemente seguros
+    env = os.environ.copy()
+    if "_MEIPASS" in env:
+        del env["_MEIPASS"]
+            
     # Lanzar el archivo .bat en segundo plano sin ventana de consola
     try:
         subprocess.Popen(
             [bat_path],
             shell=True,
+            env=env,
             creationflags=0x08000000 # CREATE_NO_WINDOW
         )
     except Exception as e:
